@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpaca Image Generator Website</title>
+    <style>
+        .backgrounds {
+            position: absolute;
+            z-index: -1;
+        }
+
+        .accessories, .ears, .eyes, .hair, .neck, .mouth, .nose {
+            position: absolute;
+        }
+
+        .alpaca-container {
+            display: flex;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Alapaca Generator</h1>
+        <div class="alpaca-container">
+            <section class="alpaca-builder">
+                <img src="assets/alpaca/ears/default.png" class="ears"/>
+
+                <img src="assets/alpaca/neck/default.png" class="neck" />
+                <img src="assets/alpaca/backgrounds/blue50.png" class="backgrounds"/>
+                <img src="assets/alpaca/hair/default.png" class="hair" />
+                <img src="assets/alpaca/eyes/default.png" class="eyes"/>
+                <img src="assets/alpaca/nose.png" class="nose"/>
+                <img src="assets/alpaca/mouth/default.png" class="mouth"/>
+                <img src="assets/alpaca/accessories/headphone.png" class="accessories"/>
+
+                <img src="assets/alpaca/leg/default.png" class="leg"/>
+            </section>
+            <aside>
+                <div class="aside-options">
+                    <h2>Accessorize the Alpaca's</h2>
+                    <div class="button-row">
+                        <button class="button" id="hair">Hair</button>
+                        <button class="button" id="ears">Ears</button>
+                        <button class="button" id="eyes">Eyes</button>
+                        <button class="button" id="mouth">Mouth</button>
+                        <button class="button" id="neck">Neck</button>
+                        <button class="button" id="leg">Leg</button>
+                        <button class="button" id="accessories">Accessories</button>
+                        <button class="button" id="backgrounds">Background</button>
+                    </div>
+                </div>
+                <div class="aside-options"></div>
+            </aside>
+        </div>
+    </main>
+    <script>
+
+        const parts = [
+            "accessories",
+            "backgrounds",
+            "ears",
+            "eyes",
+            "hair",
+            "leg",
+            "mouth",
+            "neck"
+        ];
+
+        const partState = {};
+
+        parts.forEach(part => {
+            partState[part] = {
+                list: [],
+                index: 0
+            };
+        });
+
+        const loadPart = async (partName) => {
+            try {
+                const response = await fetch(`/alpaca/${partName}`);
+                const data = await response.json();
+
+                partState[partName].list = data.data;
+            } catch (err) {
+                console.error(`Failed to load ${partName}:`, err);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Promise.all(parts.map(part => loadPart(part)));
+
+            for(let i = 0; i < parts.length; i++) {
+                let partList = parts[i];
+
+                document.getElementById(partList).addEventListener("click", (e) => {
+                    const state = partState[partList];
+
+                    if(state) {
+                        const maxNumberOfItems = state.list.length;
+                        state.index++;
+
+                        if (state.index >= maxNumberOfItems) {
+                            state.index = 0;
+                        }
+
+                        const id = document.querySelector(`.${partList}`);
+                        id.src = `http://localhost:3000/assets/alpaca/${partList}/${state.list[state.index]}`
+                    }
+                })
+            }
+
+        });
+    </script>
+
+</body>
+</html>
