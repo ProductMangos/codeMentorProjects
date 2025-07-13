@@ -146,16 +146,22 @@
             "neck"
         ];
 
+        const selectedStyles = {
+            hair: 'default',
+            ears: 'default',
+            eyes: 'default',
+            mouth: 'default',
+            neck: 'default',
+            leg: 'default',
+            accessories: 'headphone',
+            backgrounds: 'blue50'
+        };
+
+
         const selectedPartList = [];
         const styleOptions = document.getElementById("styleOptions");
         let activeOption = 'hair';
-
-//        parts.forEach(part => {
-//            partState[part] = {
-//                list: [],
-//                index: 0
-//            };
-//        });
+        let actionOptionStyle = 'bang';
 
         const loadPart = async (partName) => {
             try {
@@ -168,14 +174,64 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
+
              parts.map(part => {
                 if (document.getElementById(part).classList.contains("active")) {
                     activeOption = document.getElementById(part).id;
                 }
+
+                document.getElementById(part).addEventListener("click", async () =>  {
+
+                    styleOptions.innerHTML = "";
+                    selectedPartList.length = 0;
+
+                    for (let i = 0; i < parts.length; i++) {
+                        document.getElementById(parts[i]).classList.remove("active");
+                    }
+
+                    if (document.getElementById(part).classList.contains("active")) {
+                        activeOption = document.getElementById(part).id;
+                    }
+
+                    document.getElementById(part).classList.add("active");
+
+                    if (document.getElementById(part).classList.contains("active")) {
+                        activeOption = document.getElementById(part).id;
+                    }
+                    await loadPart(activeOption);
+                    const selectedPartArray = selectedPartList[0];
+
+                    for (let i = 0; i < selectedPartArray.length; i++) {
+                        let newBtn = document.createElement("button");
+                        let buttonTitle = selectedPartArray[i].trim().replace(".png", "");
+                        newBtn.textContent = buttonTitle[0].toUpperCase() + buttonTitle.substring(1);
+                        newBtn.classList = "button";
+
+                        newBtn.classList.add(`${buttonTitle}-options`);
+
+                        if (buttonTitle === selectedStyles[activeOption]) {
+                            newBtn.classList.add("active");
+                        }
+
+
+                        newBtn.addEventListener("click", () => {
+                            const btns = document.querySelectorAll("#styleOptions .button")
+                            for (let i = 0; i < btns.length; i++) {
+                                btns[i].classList.remove("active");
+                            }
+                            document.querySelector(`.${buttonTitle}-options`).classList.add("active");
+                            selectedStyles[activeOption] = buttonTitle;
+
+                            document.querySelector(`.${activeOption}`).src = `http://localhost:3000/assets/alpaca/${activeOption}/${buttonTitle}.png`;
+                        })
+
+                        styleOptions.appendChild(newBtn);
+                    }
+
+                })
             });
 
             await loadPart(activeOption);
-
             const selectedPartArray = selectedPartList[0];
 
             for (let i = 0; i < selectedPartArray.length; i++) {
@@ -184,14 +240,19 @@
                 newBtn.textContent = buttonTitle[0].toUpperCase() + buttonTitle.substring(1);
                 newBtn.classList = "button";
 
+                if (i === 0) {
+                    newBtn.classList.add("active");
+                }
+
+                newBtn.addEventListener("click", () => {
+                    console.log(activeOption)
+
+                    document.querySelector(`.${activeOption}`).src = `http://localhost:3000/assets/alpaca/${activeOption}/${buttonTitle}.png`
+                })
+
                 styleOptions.appendChild(newBtn);
             }
-
         });
-
-        const sortSelectedData = async () => {
-
-        }
 
 
     </script>
