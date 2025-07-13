@@ -5,34 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alpaca Image Generator Website</title>
     <style>
-        .backgrounds {
-            position: absolute;
-            z-index: -1;
+        * {
+            box-sizing: border-box;
         }
 
-        .accessories, .ears, .eyes, .hair, .neck, .mouth, .nose {
-            position: absolute;
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            padding: 1rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .alpaca-container {
             display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .alpaca-builder-wrapper {
+            flex: 1 1 300px;
+            max-width: 600px;
+            position: relative;
+            aspect-ratio: 1 / 1;
+        }
+
+        .accessories, .ears, .eyes, .hair, .neck, .mouth, .nose, .leg {
+            z-index: 1;
+        }
+
+        .alpaca-builder img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            top: 0;
+            left: 0;
+        }
+
+        .aside-options {
+            flex: 1 1 300px;
+            max-width: 450px;
+            padding-left: 2rem;
         }
 
         .button-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 2rem;
+            gap: 1rem;
         }
 
+        button.button {
+            flex: 1 25%;
+            padding: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 25px;
+            color: lightblue;
+            background: transparent;
+            border-color: transparent;
+            outline: 1px solid lightblue;
+        }
+
+        button.active {
+            background-color: navy;
+            color: white;
+        }
+
+        button:hover {
+            outline: 2px solid navy;
+        }
+
+        @media (max-width: 768px) {
+            .alpaca-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .aside-options {
+                width: 100%;
+            }
+        }
     </style>
+
 </head>
 <body>
     <main>
         <h1>Alapaca Generator</h1>
         <div class="alpaca-container">
-            <section class="alpaca-builder">
+            <section class="alpaca-builder-wrapper">
+            <div class="alpaca-builder">
                 <img src="assets/alpaca/ears/default.png" class="ears"/>
-
                 <img src="assets/alpaca/neck/default.png" class="neck" />
                 <img src="assets/alpaca/backgrounds/blue50.png" class="backgrounds"/>
                 <img src="assets/alpaca/hair/default.png" class="hair" />
@@ -40,14 +108,14 @@
                 <img src="assets/alpaca/nose.png" class="nose"/>
                 <img src="assets/alpaca/mouth/default.png" class="mouth"/>
                 <img src="assets/alpaca/accessories/headphone.png" class="accessories"/>
-
                 <img src="assets/alpaca/leg/default.png" class="leg"/>
+            </div>
             </section>
-            <aside>
+            <div>
                 <div class="aside-options">
                     <h2>Accessorize the Alpaca's</h2>
                     <div class="button-row">
-                        <button class="button" id="hair">Hair</button>
+                        <button class="button active" id="hair">Hair</button>
                         <button class="button" id="ears">Ears</button>
                         <button class="button" id="eyes">Eyes</button>
                         <button class="button" id="mouth">Mouth</button>
@@ -57,12 +125,16 @@
                         <button class="button" id="backgrounds">Background</button>
                     </div>
                 </div>
-                <div class="aside-options"></div>
-            </aside>
+                <div class="aside-options">
+                    <h2>Style</h2>
+                    <div class="button-row" id="styleOptions">
+
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     <script>
-
         const parts = [
             "accessories",
             "backgrounds",
@@ -74,50 +146,54 @@
             "neck"
         ];
 
-        const partState = {};
+        const selectedPartList = [];
+        const styleOptions = document.getElementById("styleOptions");
+        let activeOption = 'hair';
 
-        parts.forEach(part => {
-            partState[part] = {
-                list: [],
-                index: 0
-            };
-        });
+//        parts.forEach(part => {
+//            partState[part] = {
+//                list: [],
+//                index: 0
+//            };
+//        });
 
         const loadPart = async (partName) => {
             try {
                 const response = await fetch(`/alpaca/${partName}`);
                 const data = await response.json();
-
-                partState[partName].list = data.data;
+                selectedPartList.push(data.data);
             } catch (err) {
                 console.error(`Failed to load ${partName}:`, err);
             }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            await Promise.all(parts.map(part => loadPart(part)));
+             parts.map(part => {
+                if (document.getElementById(part).classList.contains("active")) {
+                    activeOption = document.getElementById(part).id;
+                }
+            });
 
-            for(let i = 0; i < parts.length; i++) {
-                let partList = parts[i];
+            await loadPart(activeOption);
 
-                document.getElementById(partList).addEventListener("click", (e) => {
-                    const state = partState[partList];
+            const selectedPartArray = selectedPartList[0];
 
-                    if(state) {
-                        const maxNumberOfItems = state.list.length;
-                        state.index++;
+            for (let i = 0; i < selectedPartArray.length; i++) {
+                let newBtn = document.createElement("button");
+                let buttonTitle = selectedPartArray[i].trim().replace(".png", "");
+                newBtn.textContent = buttonTitle[0].toUpperCase() + buttonTitle.substring(1);
+                newBtn.classList = "button";
 
-                        if (state.index >= maxNumberOfItems) {
-                            state.index = 0;
-                        }
-
-                        const id = document.querySelector(`.${partList}`);
-                        id.src = `http://localhost:3000/assets/alpaca/${partList}/${state.list[state.index]}`
-                    }
-                })
+                styleOptions.appendChild(newBtn);
             }
 
         });
+
+        const sortSelectedData = async () => {
+
+        }
+
+
     </script>
 
 </body>
