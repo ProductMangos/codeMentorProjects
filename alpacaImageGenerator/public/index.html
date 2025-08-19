@@ -99,18 +99,21 @@
         <h1>Alapaca Generator</h1>
         <div class="alpaca-container">
             <section class="alpaca-builder-wrapper">
-            <div class="alpaca-builder">
-                <img src="assets/alpaca/ears/default.png" class="ears"/>
-                <img src="assets/alpaca/neck/default.png" class="neck" />
-                <img src="assets/alpaca/backgrounds/blue50.png" class="backgrounds"/>
-                <img src="assets/alpaca/hair/default.png" class="hair" />
-                <img src="assets/alpaca/eyes/default.png" class="eyes"/>
-                <img src="assets/alpaca/nose.png" class="nose"/>
-                <img src="assets/alpaca/mouth/default.png" class="mouth"/>
-                <img src="assets/alpaca/accessories/headphone.png" class="accessories"/>
-                <img src="assets/alpaca/leg/default.png" class="leg"/>
-            </div>
+                <div class="alpaca-builder">
+                    <img src="assets/alpaca/ears/default.png" class="ears"/>
+                    <img src="assets/alpaca/neck/default.png" class="neck" />
+                    <img src="assets/alpaca/backgrounds/blue50.png" class="backgrounds"/>
+                    <img src="assets/alpaca/hair/default.png" class="hair" />
+                    <img src="assets/alpaca/eyes/default.png" class="eyes"/>
+                    <img src="assets/alpaca/nose.png" class="nose"/>
+                    <img src="assets/alpaca/mouth/default.png" class="mouth"/>
+                    <img src="assets/alpaca/accessories/headphone.png" class="accessories"/>
+                    <img src="assets/alpaca/leg/default.png" class="leg"/>
+                </div>
+                <div style="position: absolute; bottom: -40px; background: red" id="random">Random</div>
+
             </section>
+
             <div>
                 <div class="aside-options">
                     <h2>Accessorize the Alpaca's</h2>
@@ -158,7 +161,7 @@
         };
 
 
-        const selectedPartList = [];
+        let selectedPartList = [];
         const styleOptions = document.getElementById("styleOptions");
         let activeOption = 'hair';
         let actionOptionStyle = 'bang';
@@ -254,6 +257,41 @@
             }
         });
 
+        document.getElementById("random").addEventListener("click", async () => {
+            const randomStyles = {
+                hair: 'default',
+                ears: 'default',
+                eyes: 'default',
+                mouth: 'default',
+                neck: 'default',
+                leg: 'default',
+                accessories: 'headphone',
+                backgrounds: 'blue50'
+            };
+
+            selectedPartList.length = 0;
+            for (let i = 0; i < parts.length; i++) {
+                await loadPart(parts[i]);
+            }
+
+            for (let i = 0; i < selectedPartList.length; i++) {
+                const maxLength = selectedPartList[i].length;
+                let randomNumberWithMaxlength = Math.floor(Math.random() * maxLength);
+                console.log(selectedPartList[i][randomNumberWithMaxlength]);
+            }
+
+
+//            for (let i = 0; i < selectedPartList.length; i++) {
+//                const separatePartList = selectedPartList[i];
+//                for (let j = 0; j < separatePartList.length; j++) {
+//                    console.log(separatePartList[j]);
+////                    document.querySelector(`.${selectedPartList[i]}`).src = `http://localhost:3000/assets/alpaca/${selectedPartList[i]}/${buttonTitle}.png`
+//
+//                }
+//            }
+
+//            console.log(selectedPartList[0])
+        })
 
     </script>
 
